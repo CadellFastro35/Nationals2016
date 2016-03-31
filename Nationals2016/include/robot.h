@@ -115,7 +115,7 @@ void robot_intakeIn();		//set the robot's intake to in
 void robot_intakeOut();		//set the robot's intake to out
 void robot_intakeStop();	//stop the robot's intake
 void robot_setLiftConst();	//set the PID lift constant value
-void userControl();
+extern void userControl();
 
 //autonomous methods
 void robot_record(unsigned long int time);	//record the value of the motor ports for 15 seconds
