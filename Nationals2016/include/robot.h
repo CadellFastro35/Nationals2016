@@ -123,4 +123,8 @@ void robot_replay();						//playback the value of all motor ports
 
 void robot_driverControl();		//controls all robot's functions from joystick
 
+//Universal PID Loop (Note that I could not find an appropriate place to put this)
+float integral;
+float lastError;
+int robot_PID(float Kp, float Ki, float Kd, int sensor, int target);
 #endif /* ROBOT_H_ */

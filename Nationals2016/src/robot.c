@@ -399,3 +399,14 @@ void robot_replay(){
 		}
 	robot_stop();	//stop all motors
 }
+
+//Implementation of Universal PID can be found here
+float integral = 0;
+float lastError = 0;
+int robot_PID(float Kp, float Ki, float Kd, int sensor, int target){
+	float error = target - sensor;
+	integral = integral + error;
+	int output = error*Kp + integral*Ki + (lastError - error)*Kd;
+	return output;
+	lastError = error;
+}
