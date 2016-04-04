@@ -63,6 +63,15 @@ int robot_getStartPos(){
 }
 
 /*
+ * Retrieve the robot's skills state
+ *
+ * @return Robot's starting position.
+ */
+bool robot_getSkills(){
+	return Robot.skills;
+}
+
+/*
  * Retrieve the robot's current lift position.
  *
  * @return The robot's current lift position.
@@ -106,10 +115,10 @@ void robot_lcdMenu(){
 	}
 
 	lcd_waitForRelease(Robot.lcd);	//wait for the button to be released before proceeding
-	Robot.record = false;				//set the defualt record to null
+	Robot.record = false;			//set the defualt record to false
 
 	//select a mode
-	while(robot_isRecording() == false && !lcd_buttonIsPressed(Robot.lcd, LCD_BTN_RIGHT)){
+	while(!robot_isRecording() && !lcd_buttonIsPressed(Robot.lcd, LCD_BTN_RIGHT)){
 		lcd_centerPrint(&Robot.lcd, TOP, "Select Mode");	//print lcd prompt
 		lcd_print(&Robot.lcd, BOTTOM, "REC         COMP");	//print lcd prompt
 
@@ -123,57 +132,62 @@ void robot_lcdMenu(){
 	}
 
 	lcd_waitForRelease(Robot.lcd);	//wait for the button to be released before proceeding
-	Robot.alliance = NULL;			//set default alliance to null
+	Robot.skills = false;			//set the defualt skills to false
 
-	//select an alliance
-	while(robot_getAlliance() == NULL){
-		lcd_centerPrint(&Robot.lcd, TOP, "Select Alliance");	//print lcd prompt
-		lcd_print(&Robot.lcd, BOTTOM, "RED         BLUE");		//print lcd prompt
+	//select a mode
+	while(!robot_getSkills() && !lcd_buttonIsPressed(Robot.lcd, LCD_BTN_RIGHT)){
+		lcd_centerPrint(&Robot.lcd, TOP, "Select Mode");	//print lcd prompt
+		lcd_print(&Robot.lcd, BOTTOM, "SKILLS      COMP");	//print lcd prompt
 
-		//red alliance selected
+		//competition selected
 		if(lcd_buttonIsPressed(Robot.lcd, LCD_BTN_LEFT))
-			Robot.alliance = RED_ALLIANCE;
-
-		//blue alliance selected
-		else if(lcd_buttonIsPressed(Robot.lcd, LCD_BTN_RIGHT))
-			Robot.alliance = BLUE_ALLIANCE;
-	}
-
-	lcd_waitForRelease(Robot.lcd);	//wait for the button to be released before proceeding
-	Robot.startPos = NULL;			//set default starting position to null
-
-	//select a starting position
-	while(robot_getStartPos() == NULL){
-		lcd_centerPrint(&Robot.lcd, TOP, "Select Position");	//print lcd prompt
-		lcd_print(&Robot.lcd, BOTTOM, "POS 1      POS 2");		//print lcd prompt
-
-		//red alliance selected
-		if(lcd_buttonIsPressed(Robot.lcd, LCD_BTN_LEFT))
-			Robot.startPos = POS_1;
-
-		//blue alliance selected
-		else if(lcd_buttonIsPressed(Robot.lcd, LCD_BTN_RIGHT))
-			Robot.startPos = POS_2;
-	}
-
-	lcd_waitForRelease(Robot.lcd);	//wait for the button to be released before proceeding
-	Robot.autonType = NULL;
-
-	//select skills or comp
-	while(Robot.autonType == NULL){
-		lcd_centerPrint(&Robot.lcd, TOP, "Select AutonType"); //print lcd prompt
-		lcd_print(&Robot.lcd, BOTTOM, "SKILLS     AUTON");    //print lcd prompt
+			Robot.skills = true;
 
 		//skills selected
-		if(lcd_buttonIsPressed(Robot.lcd, LCD_BTN_LEFT))
-			Robot.autonType = SKILLS;
-
-		//comp auton selected
 		else if(lcd_buttonIsPressed(Robot.lcd, LCD_BTN_RIGHT))
-			Robot.autonType = AUTO;
+			Robot.skills = false;
 	}
-	lcd_waitForRelease(Robot.lcd); //wait for button to be released
-	lcd_clear(&Robot.lcd); //clear lcd screen
+
+	lcd_waitForRelease(Robot.lcd);	//wait for the button to be released before proceeding
+
+	//select competition settings
+	if(!robot_getSkills()){
+		Robot.alliance = NULL;			//set default alliance to null
+
+		//select an alliance
+		while(robot_getAlliance() == NULL){
+			lcd_centerPrint(&Robot.lcd, TOP, "Select Alliance");	//print lcd prompt
+			lcd_print(&Robot.lcd, BOTTOM, "RED         BLUE");		//print lcd prompt
+
+			//red alliance selected
+			if(lcd_buttonIsPressed(Robot.lcd, LCD_BTN_LEFT))
+				Robot.alliance = RED_ALLIANCE;
+
+			//blue alliance selected
+			else if(lcd_buttonIsPressed(Robot.lcd, LCD_BTN_RIGHT))
+				Robot.alliance = BLUE_ALLIANCE;
+		}
+
+		lcd_waitForRelease(Robot.lcd);	//wait for the button to be released before proceeding
+		Robot.startPos = NULL;			//set default starting position to null
+
+		//select a starting position
+		while(robot_getStartPos() == NULL){
+			lcd_centerPrint(&Robot.lcd, TOP, "Select Position");	//print lcd prompt
+			lcd_print(&Robot.lcd, BOTTOM, "POS 1      POS 2");		//print lcd prompt
+
+			//red alliance selected
+			if(lcd_buttonIsPressed(Robot.lcd, LCD_BTN_LEFT))
+				Robot.startPos = POS_1;
+
+			//blue alliance selected
+			else if(lcd_buttonIsPressed(Robot.lcd, LCD_BTN_RIGHT))
+				Robot.startPos = POS_2;
+		}
+
+		lcd_waitForRelease(Robot.lcd);	//wait for the button to be released before proceeding
+	}
+	lcd_clear(&Robot.lcd);			//clear the lcd screen
 }
 
 /*
@@ -310,8 +324,12 @@ void robot_record(unsigned long int time){
 
 	FILE* file = NULL;	//initialize file pointer
 
+	//skills challenge autonomous
+	if(robot_getSkills())
+			file = fopen("sk.txt", "w");
+
 	//red alliance autonomous at starting position 1
-	if(robot_getAlliance() == RED_ALLIANCE && robot_getStartPos() == POS_1)
+	else if(robot_getAlliance() == RED_ALLIANCE && robot_getStartPos() == POS_1)
 		file = fopen("r1.txt" , "w");
 
 	//red alliance autonomous at starting position 2
@@ -341,12 +359,16 @@ void robot_record(unsigned long int time){
 	unsigned int counter = 0;
 	if(file != NULL)
 		while(counter < time){
-			//print to the desired file
-			fprintf(file, "%c%c%c%c%c%c%c%c%c%c", motorGet(PORT_1),
+
+			//print motor values to the desired file
+			fprintf(file, "%c%c%c%c%c%c%c%c%c%c", motorGet(PORT_1)+127,
 					motorGet(PORT_2)+127, motorGet(PORT_3)+127, motorGet(PORT_4)+127, motorGet(PORT_5)+127,
 					motorGet(PORT_6)+127, motorGet(PORT_7)+127, motorGet(PORT_8)+127, motorGet(PORT_9)+127,
 					motorGet(PORT_10)+127);
 
+			//print digital sensor values to desired file (used for solenoids and LEDs)
+			for(int i = 1; i <= DGTL_12; i++)
+				fputc(digitalRead(i), file);
 
 			userControl();	//do normal drive functions
 			delay(20);		//standard delay
@@ -364,10 +386,14 @@ void robot_record(unsigned long int time){
  * alliance and position.
  */
 void robot_replay(){
-	FILE* file = NULL;
+	FILE* file = NULL; //initialize file pointer
+
+	//skills challenge autonomous
+	if(robot_getSkills())
+		file = fopen("sk.txt", "r");
 
 	//red alliance autonomous at starting position 1
-	if(robot_getAlliance() == RED_ALLIANCE && robot_getStartPos() == POS_1)
+	else if(robot_getAlliance() == RED_ALLIANCE && robot_getStartPos() == POS_1)
 		file = fopen("r1.txt" , "r");
 
 	//red alliance autonomous at starting position 2
@@ -385,6 +411,8 @@ void robot_replay(){
 	//continue to feed motor values until the end of the file
 	if(file != NULL)
 		while(!feof(file)){
+
+			//set motor velocities
 			motor_setVelocity(&motor1, fgetc(file)-127);	//set motor 1
 			motor_setVelocity(&motor2, fgetc(file)-127);	//set motor 2
 			motor_setVelocity(&motor3, fgetc(file)-127);	//set motor 3
@@ -395,18 +423,12 @@ void robot_replay(){
 			motor_setVelocity(&motor8, fgetc(file)-127);	//set motor 8
 			motor_setVelocity(&motor9, fgetc(file)-127);	//set motor 9
 			motor_setVelocity(&motor10, fgetc(file)-127);	//set motor 10
+
+			//set digital pin statuses
+			for(int i = 1; i <= DGTL_12; i++)
+				digitalWrite(i, fgetc(file));
+
 			delay(20);
 		}
 	robot_stop();	//stop all motors
-}
-
-//Implementation of Universal PID can be found here
-float integral = 0;
-float lastError = 0;
-int robot_PID(float Kp, float Ki, float Kd, int sensor, int target){
-	float error = target - sensor;
-	integral = integral + error;
-	int output = error*Kp + integral*Ki + (lastError - error)*Kd;
-	return output;
-	lastError = error;
 }

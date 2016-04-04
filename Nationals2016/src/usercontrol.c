@@ -55,7 +55,7 @@ void userControl(){
 
 	int wheelVelocity = sensor_getValue(Robot.wheelEncoder);
 	sensor_reset(&Robot.wheelEncoder);
-	if(Robot.autonType == AUTO)
+	if(Robot.skills == false)
 	{
 		if(lcd_buttonPressed(Robot.lcd) == 0){
 			lcdPrint(uart2, 1, "setSpeed: %d", wheelSetSpeed);
@@ -117,9 +117,9 @@ void userControl(){
 		motorSystem_stop(&Robot.intake);
 
 	if(bandIntake)
-		motor_setVelocity(&motor1, 127);
+		motor_setVelocity(&motor10, 127);
 	else if(bandOuttake)
-		motor_setVelocity(&motor1, -50);
+		motor_setVelocity(&motor10, -50);
 	//end of intake operations
 
 	if(speedUp && wheelSetSpeed < 127) //adjustable wheel speed

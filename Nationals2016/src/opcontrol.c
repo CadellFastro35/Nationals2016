@@ -1,10 +1,13 @@
-/** @file opcontrol.c
+/** @file opcontrol.c\
  * @brief File for operator control code
  *
  * This file should contain the user operatorControl() function and any functions related to it.
  *
  * Copyright (c) 2011-2014, Purdue University ACM SIG BOTS.
  * All rights reserved.
+ *
+ * Modified on: 2016
+ *      Author: Jordan Kieltyka
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -53,7 +56,20 @@
  */
 void operatorControl() {
 
-	while (1) {
+	lcd_centerPrint(&Robot.lcd, TOP, "Driver");				//print to lcd
+	lcd_centerPrint(&Robot.lcd, BOTTOM, "Control Mode");	//print to lcd
+
+	//continue to loop until competition is ended
+	while(!robot_isRecording()){
+		userControl();
 		delay(20);
 	}
+
+	//do record sequence for skills challenge (60 seconds)
+	if(robot_getSkills())
+		robot_record(60000);
+
+	//do record sequence for autonomous (15 seconds)
+	else
+		robot_record(15000);
 }

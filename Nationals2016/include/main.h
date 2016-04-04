@@ -12,6 +12,9 @@
  * Copyright (c) 2011-2014, Purdue University ACM SIG BOTS.
  * All rights reserved.
  *
+ *  Modified on: 2016
+ *       Author: Jordan Kieltyka
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -44,6 +47,7 @@
 #define MAIN_H_
 
 #include <API.h>
+#include <robot.h>
 
 // Allow usage of this file in C++ programs
 #ifdef __cplusplus
@@ -110,7 +114,8 @@ void initialize();
  *
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
-void operatorControl();
+void operatorControl();	//do not modify in blackbox
+void userControl();		//place user code here
 
 // End C++ export structure
 #ifdef __cplusplus

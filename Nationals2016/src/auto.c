@@ -6,6 +6,11 @@
  * Copyright (c) 2011-2014, Purdue University ACM SIG BOTS.
  * All rights reserved.
  *
+ *  Modified on: Dec 18, 2015
+ *  	 Author: Notre Dame de la Baie Academy
+ *      	   	 VEX Robotics Team 6001
+ *      		 Jordan Kieltyka
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -49,4 +54,7 @@
  * so, the robot will await a switch to another mode or disable/enable cycle.
  */
 void autonomous() {
+	lcd_centerPrint(&Robot.lcd, TOP, "Autonomous Mode");	//print to lcd
+	lcd_centerPrint(&Robot.lcd, BOTTOM, "ACTIVE");			//print to lcd
+	robot_replay();											//replay the correct autonomous
 }

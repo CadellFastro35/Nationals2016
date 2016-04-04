@@ -151,7 +151,6 @@ void motorSystem_setTillPID(MotorSystem* target, Sensor* obs, double k, int val)
 #define IME	  0	//integrated motor encoder
 
 //analog sensors
-#define QME	  1 //2-wire quadrature motor encoder
 #define GYRO  2	//gyroscope
 #define ACCEL 3	//accelerometer
 #define USRF  4	//ultrasonic range finder
@@ -160,10 +159,11 @@ void motorSystem_setTillPID(MotorSystem* target, Sensor* obs, double k, int val)
 #define LIGHT 7	//light sensor
 
 //digital sensors
+#define QME	  1  //2-wire quadrature motor encoder
 #define BUMP  8	 //bumper switch
 #define LIM   9	 //limit switch
 #define LED   10 //LED indicator
-#define SOL   11 //electronic pnuematic solenoid
+#define SOL   11 //electronic pneumatic solenoid
 
 Sensor sensor_init(int sensorType, const int port, ...);	//initialize the sensor
 void sensor_set(Sensor* target, int value);					//set the value of the sensor

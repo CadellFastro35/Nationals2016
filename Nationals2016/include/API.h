@@ -44,7 +44,6 @@
 #include <stdbool.h>
 #include <stdarg.h>
 
-
 // Begin C++ extern to C
 #ifdef __cplusplus
 extern "C" {

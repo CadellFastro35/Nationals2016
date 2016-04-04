@@ -36,9 +36,9 @@
 #define POS_1 1	//first position
 #define POS_2 2	//second position
 
-//Autonomous Type
-#define AUTO 1
-#define SKILLS 2
+//robot modes
+#define SKILLS 0
+#define COMPETITION 1
 
 //controller type
 #define DRIVER  1	//the main driver controller
@@ -60,29 +60,28 @@ Motor motor10;	//motor on port 10
 struct{
 	int alliance;		//the robot's alliance
 	int startPos;		//the robot's starting position
+	bool skills;		//flag for if the robot is in a skills challenge or not
 	bool record;		//flag for if the robot is in the recording state or not
 	LCD lcd;			//the robot's LCD screen
 	int liftPos;		//the robot's current lift position
 	double liftConst;	//the robot's lift constant for PID, default is 0.7
-	int autonType;
 
 	//motor systems
 	MotorSystem rightDrive;		//robot's right drive
 	MotorSystem leftDrive;		//robot's left drive
 	MotorSystem intake;			//robot's intake motor system
 	MotorSystem lift;			//robot's lift motor system
-	MotorSystem PTO; 			//PTO box motor system
+	MotorSystem PTO;
 
 	//sensors
 	Sensor rightDriveSensor; 	//robot's right drive
 	Sensor leftDriveSensor;		//robot's left drive sensor
 	Sensor liftSensor;			//robot's lift sensor
 	Sensor turnSensor;			//robot's turn sensor
-	Sensor puncherEncoder;		//puncher encoder
-	Sensor wheelEncoder;		//wheel velocity QME
-	Sensor wheelDetector;		//wheel line follower
+	Sensor puncherEncoder; 		//puncher encoder
+	Sensor wheelEncoder;		//wheel encoder
 	Sensor puncherDetector;		//puncher line follower
-	Sensor solenoid;			//transmission solenoid
+	Sensor wheelDetector;		//wheel line follower
 } Robot;
 
 /* Generic robot functions */
@@ -92,6 +91,7 @@ void robot_init();	//initialize the robot
 //getter methods
 int robot_getAlliance();	//retrieve the robot's alliance
 int robot_getStartPos();	//retrieve the robot's starting position
+bool robot_getSkills();		//retrieve the robot's skills state
 int robot_getLiftPos();		//retrieve the robot's lift position
 bool robot_isRecording();	//determine if the robot is in recording mode
 double robot_getLiftConst();//get the PID lift constant value
@@ -108,14 +108,13 @@ void robot_setDriveFor(int velocity, unsigned int time);				//run drive for a ce
 void robot_setDriveForSplit(int left, int right, unsigned int time);	//run drive for a certain amount of time independently
 
 //lift methods
-//void robot_liftToPosition(int pos);	//go to the specified position
+void robot_liftToPosition(int pos);	//go to the specified position
 
 //intake methods
 void robot_intakeIn();		//set the robot's intake to in
 void robot_intakeOut();		//set the robot's intake to out
 void robot_intakeStop();	//stop the robot's intake
 void robot_setLiftConst();	//set the PID lift constant value
-extern void userControl();
 
 //autonomous methods
 void robot_record(unsigned long int time);	//record the value of the motor ports for 15 seconds
@@ -123,8 +122,4 @@ void robot_replay();						//playback the value of all motor ports
 
 void robot_driverControl();		//controls all robot's functions from joystick
 
-//Universal PID Loop (Note that I could not find an appropriate place to put this)
-float integral;
-float lastError;
-int robot_PID(float Kp, float Ki, float Kd, int sensor, int target);
 #endif /* ROBOT_H_ */

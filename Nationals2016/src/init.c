@@ -6,6 +6,9 @@
  * Copyright (c) 2011-2014, Purdue University ACM SIG BOTS.
  * All rights reserved.
  *
+ *  Modified on: 2016
+ *       Author: Jordan Kieltyka
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -43,6 +46,8 @@
  * configure a UART port (usartOpen()) but cannot set up an LCD (lcdInit()).
  */
 void initializeIO() {
+pinMode(12, OUTPUT);
+digitalWrite(12, LOW);
 }
 
 /*
@@ -59,4 +64,28 @@ void initializeIO() {
  * can be implemented in this task if desired.
  */
 void initialize() {
+	robot_init();	//initialize the robot
+
+	//motors
+	motor_reverse(&motor4);
+	motor_reverse(&motor9);
+	motor_reverse(&motor6);
+	motor_reverse(&motor7);
+	motor_reverse(&motor1);
+	motor_reverse(&motor10);
+	//motor systems
+	Robot.PTO = motorSystem_init(4, &motor4, &motor5, &motor8, &motor9);
+	Robot.intake = motorSystem_init(2, &motor1, &motor10);
+	Robot.leftDrive = motorSystem_init(2, &motor2, &motor3);
+	Robot.rightDrive = motorSystem_init(2, &motor6, &motor7);
+
+	//sensors
+	Robot.wheelEncoder = sensor_init(QME, 1, 2);
+	Robot.puncherEncoder = sensor_init(QME, 3, 4);
+	Robot.wheelDetector = sensor_init(LINE, 2);
+	Robot.puncherDetector = sensor_init(LINE, 3);
+
+	//LCD
+	Robot.lcd = lcd_init(uart2);    //setup the robot's lcd
+	robot_lcdMenu();                //begin robot start up menu
 }
