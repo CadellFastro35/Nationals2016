@@ -315,6 +315,114 @@ void robot_intakeStop(){
 }
 
 /*
+ * Convert a digit value to the ASCII equivelant.
+ *
+ * @param dgt A number between 0 and 9.
+ * @return The ASCII value of the digit.
+ */
+char intToChar(int dgt){
+	switch(dgt){
+	default:
+		return '0';
+	case 1:
+		return '1';
+	case 2:
+		return '2';
+	case 3:
+		return '3';
+	case 4:
+		return '4';
+	case 5:
+		return '5';
+	case 6:
+		return '6';
+	case 7:
+		return '7';
+	case 8:
+		return '8';
+	case 9:
+		return '9';
+	}
+}
+
+/*
+ * Convert and ASCII value from '0' to '9' to its integer equivelant.
+ *
+ * @param chr The ACII character to be converted.
+ * @return The integer value of the ASCII character.
+ */
+int charToInt(char chr){
+	switch(chr){
+	default:
+		return 0;
+	case '1':
+		return 1;
+	case '2':
+		return 2;
+	case '3':
+		return 3;
+	case '4':
+		return 4;
+	case '5':
+		return 5;
+	case '6':
+		return 6;
+	case '7':
+		return 7;
+	case '8':
+		return 8;
+	case '9':
+		return 9;
+	}
+}
+
+/*
+ * Write the motor velocity value + 127 to the desired
+ * file.
+ *
+ * @param file The file to write too.
+ * @param motor The motor whose velocity is being taken.
+ */
+void writeMotorValue(FILE* file, Motor motor){
+	int velocity = motor_getVelocity(motor) + 127;
+	fputc(intToChar(velocity/100), file);
+	velocity %= 100;
+	fputc(intToChar(velocity/10), file);
+	velocity %= 10;
+	fputc(intToChar(velocity), file);
+}
+
+/*
+ * Retrieve a motor value from the desired file.
+ *
+ * @param The velocity from the file.
+ */
+int readMotorValue(FILE* file){
+	int velocity = 0;
+	velocity = charToInt(fgetc(file))*100;
+	velocity += charToInt(fgetc(file))*10;
+	return (velocity + charToInt(fgetc(file)) - 127);
+}
+
+/*
+ * Write the state of the digital port to the desired
+ * file.
+ */
+void writeDigitalPortValue(FILE* file, int port){
+	fputc(intToChar(digitalRead(port)), file);
+}
+
+/*
+ * Retrieve the digital port value from a file.
+ *
+ * @param The file being read from,
+ * @return The numerical state of the digital port.
+ */
+int readDigitalPortValue(FILE* file){
+	return charToInt(fgetc(file));
+}
+
+/*
  * Record the robots movements for a set amount of time.
  *
  * @param time The amount of time in milliseconds that should
@@ -359,18 +467,24 @@ void robot_record(unsigned long int time){
 	unsigned int counter = 0;
 	if(file != NULL)
 		while(counter < time){
-
-			//print motor values to the desired file
-			fprintf(file, "%c%c%c%c%c%c%c%c%c%c", motorGet(PORT_1)+127,
-					motorGet(PORT_2)+127, motorGet(PORT_3)+127, motorGet(PORT_4)+127, motorGet(PORT_5)+127,
-					motorGet(PORT_6)+127, motorGet(PORT_7)+127, motorGet(PORT_8)+127, motorGet(PORT_9)+127,
-					motorGet(PORT_10)+127);
-
-			//print digital sensor values to desired file (used for solenoids and LEDs)
-			for(int i = 1; i <= DGTL_12; i++)
-				fputc(digitalRead(i), file);
-
 			userControl();	//do normal drive functions
+
+			//write motor values
+			writeMotorValue(file, motor1);
+			writeMotorValue(file, motor2);
+			writeMotorValue(file, motor3);
+			writeMotorValue(file, motor4);
+			writeMotorValue(file, motor5);
+			writeMotorValue(file, motor6);
+			writeMotorValue(file, motor7);
+			writeMotorValue(file, motor8);
+			writeMotorValue(file, motor9);
+			writeMotorValue(file, motor10);
+
+			//write sensor values
+			for(int i = 1; i <= DGTL_12; i++)
+				writeDigitalPortValue(file, i);
+
 			delay(20);		//standard delay
 			counter += 20;	//increase counter
 		}
@@ -413,20 +527,21 @@ void robot_replay(){
 		while(!feof(file)){
 
 			//set motor velocities
-			motor_setVelocity(&motor1, fgetc(file)-127);	//set motor 1
-			motor_setVelocity(&motor2, fgetc(file)-127);	//set motor 2
-			motor_setVelocity(&motor3, fgetc(file)-127);	//set motor 3
-			motor_setVelocity(&motor4, fgetc(file)-127);	//set motor 4
-			motor_setVelocity(&motor5, fgetc(file)-127);	//set motor 5
-			motor_setVelocity(&motor6, fgetc(file)-127);	//set motor 6
-			motor_setVelocity(&motor7, fgetc(file)-127);	//set motor 7
-			motor_setVelocity(&motor8, fgetc(file)-127);	//set motor 8
-			motor_setVelocity(&motor9, fgetc(file)-127);	//set motor 9
-			motor_setVelocity(&motor10, fgetc(file)-127);	//set motor 10
+			motor_setVelocity(&motor1, readMotorValue(file));
+			motor_setVelocity(&motor2, readMotorValue(file));
+			motor_setVelocity(&motor3, readMotorValue(file));
+			motor_setVelocity(&motor4, readMotorValue(file));
+			motor_setVelocity(&motor5, readMotorValue(file));
+			motor_setVelocity(&motor6, readMotorValue(file));
+			motor_setVelocity(&motor7, readMotorValue(file));
+			motor_setVelocity(&motor8, readMotorValue(file));
+			motor_setVelocity(&motor9, readMotorValue(file));
+			motor_setVelocity(&motor10, readMotorValue(file));
+
 
 			//set digital pin statuses
 			for(int i = 1; i <= DGTL_12; i++)
-				digitalWrite(i, fgetc(file));
+				digitalWrite(i, readDigitalPortValue(file));
 
 			delay(20);
 		}
