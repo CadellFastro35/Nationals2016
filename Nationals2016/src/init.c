@@ -63,6 +63,7 @@ digitalWrite(12, LOW);
  * will not start. An autonomous mode selection menu like the pre_auton() in other environments
  * can be implemented in this task if desired.
  */
+Encoder wheelEnc;
 void initialize() {
 	robot_init();	//initialize the robot
 

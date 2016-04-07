@@ -55,11 +55,12 @@ void userControl(){
 
 	int wheelVelocity = sensor_getValue(Robot.wheelEncoder);
 	sensor_reset(&Robot.wheelEncoder);
+
 	if(Robot.skills == false)
 	{
 		if(lcd_buttonPressed(Robot.lcd) == 0){
 			lcdPrint(uart2, 1, "setSpeed: %d", wheelSetSpeed);
-			lcdPrint(uart2, 2, "encoderSpeed: %d", wheelVelocity);
+			lcdPrint(uart2, 2, "encoderSpeed: %d", sensor_getValue(Robot.wheelEncoder));
 		}
 		else if(lcd_buttonPressed(Robot.lcd) != 0){
 			lcdPrint(uart2, 1, "Main: %f", (double)(powerLevelMain()/1000));

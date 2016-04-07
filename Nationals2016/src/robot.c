@@ -381,10 +381,10 @@ int charToInt(char chr){
  * file.
  *
  * @param file The file to write too.
- * @param motor The motor whose velocity is being taken.
+ * @param motor The motor port whose velocity is being taken.
  */
-void writeMotorValue(FILE* file, Motor motor){
-	int velocity = motor_getVelocity(motor) + 127;
+void writeMotorValue(FILE* file, int port){
+	int velocity = motorGet(port) + 127;
 	fputc(intToChar(velocity/100), file);
 	velocity %= 100;
 	fputc(intToChar(velocity/10), file);
@@ -470,23 +470,15 @@ void robot_record(unsigned long int time){
 			userControl();	//do normal drive functions
 
 			//write motor values
-			writeMotorValue(file, motor1);
-			writeMotorValue(file, motor2);
-			writeMotorValue(file, motor3);
-			writeMotorValue(file, motor4);
-			writeMotorValue(file, motor5);
-			writeMotorValue(file, motor6);
-			writeMotorValue(file, motor7);
-			writeMotorValue(file, motor8);
-			writeMotorValue(file, motor9);
-			writeMotorValue(file, motor10);
+			for(int i = PORT_1; i <= PORT_10; i++)
+				writeMotorValue(file, i);
 
 			//write sensor values
-			for(int i = 1; i <= DGTL_12; i++)
+			for(int i = DGTL_1; i <= DGTL_12; i++)
 				writeDigitalPortValue(file, i);
 
-			delay(20);		//standard delay
-			counter += 20;	//increase counter
+			//delay(5);		//standard delay
+			counter += 26;	//increase counter
 		}
 
 	robot_stop();										//stop all motors
@@ -527,23 +519,14 @@ void robot_replay(){
 		while(!feof(file)){
 
 			//set motor velocities
-			motor_setVelocity(&motor1, readMotorValue(file));
-			motor_setVelocity(&motor2, readMotorValue(file));
-			motor_setVelocity(&motor3, readMotorValue(file));
-			motor_setVelocity(&motor4, readMotorValue(file));
-			motor_setVelocity(&motor5, readMotorValue(file));
-			motor_setVelocity(&motor6, readMotorValue(file));
-			motor_setVelocity(&motor7, readMotorValue(file));
-			motor_setVelocity(&motor8, readMotorValue(file));
-			motor_setVelocity(&motor9, readMotorValue(file));
-			motor_setVelocity(&motor10, readMotorValue(file));
-
+			for(int i = PORT_1; i <= PORT_10; i++)
+				motorSet(i, readMotorValue(file));
 
 			//set digital pin statuses
-			for(int i = 1; i <= DGTL_12; i++)
+			for(int i = DGTL_1; i <= DGTL_12; i++)
 				digitalWrite(i, readDigitalPortValue(file));
 
-			delay(20);
+			delay(26);
 		}
 	robot_stop();	//stop all motors
 }
